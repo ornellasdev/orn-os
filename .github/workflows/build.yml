@@ -16,6 +16,13 @@ jobs:
       - name: Baixar código do repositório
         uses: actions/checkout@v4
 
+      - name: Libertar espaço de disco nativamente (Apagar pacotes pesados inúteis)
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Compilar a imagem do sistema (Containerfile)
         id: build_image
         uses: redhat-actions/buildah-build@v3
