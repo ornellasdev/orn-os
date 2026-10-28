@@ -1,4 +1,6 @@
+
 name: Build Orn OS
+
 on:
   push:
     branches: [ main ]
@@ -7,16 +9,17 @@ on:
 jobs:
   build-and-push:
     name: Compilar e Enviar Imagem do Orn OS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+
     permissions:
       contents: read
       packages: write
 
     steps:
       - name: Baixar código do repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Libertar espaço de disco nativamente (Apagar pacotes pesados inúteis)
+      - name: Liberar espaço de disco nativamente
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
