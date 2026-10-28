@@ -19,5 +19,5 @@ RUN rpm-ostree install \
 RUN echo "vm.max_map_count=1048576" >> /etc/sysctl.d/99-orn-os.conf && \
     echo "fs.file-max=524288" >> /etc/sysctl.d/99-orn-os.conf
 
-# 4. Limpeza para reduzir o tamanho da imagem final
-RUN rpm-ostree cleanup -a
+# 4. Limpeza correta do sistema
+RUN rpm-ostree cleanup
