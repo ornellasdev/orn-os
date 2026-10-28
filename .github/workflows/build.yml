@@ -16,12 +16,9 @@ jobs:
       - name: Baixar código do repositório
         uses: actions/checkout@v4
 
-      - name: Limpar espaço no servidor (Evita erros de disco cheio)
-        uses: ubuntu-ci/rm-ubuntu-initramfs@v1
-
       - name: Compilar a imagem do sistema (Containerfile)
         id: build_image
-        uses: redhat-actions/buildah-build@v3  # Atualizado para v3 conforme o aviso do GitHub
+        uses: redhat-actions/buildah-build@v3
         with:
           containerfiles: |
             ./Containerfile
@@ -29,7 +26,7 @@ jobs:
           tags: latest
 
       - name: Publicar imagem no GitHub Container Registry (GHCR)
-        uses: redhat-actions/push-to-registry@v3  # Atualizado para v3
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ steps.build_image.outputs.image }}
           tags: ${{ steps.build_image.outputs.tags }}
