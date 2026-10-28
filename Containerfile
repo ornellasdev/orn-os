@@ -6,14 +6,12 @@ LABEL org.opencontainers.image.description="Gaming Linux baseado no Fedora Atomi
 # 1. Copiar a identidade visual (Wallpaper roxo neon e customizações)
 COPY system_files/ /
 
-# 2. Instalar utilitários essenciais e drivers para controles avançados
+# 2. Instalar utilitários essenciais e dependências da interface gráfica
 RUN rpm-ostree install \
     gamemode \
     gamescope \
     mangohud \
     steam-devices \
-    game-devices-udev \
-    pipewire-codec-aptx \
     python3-pyqt6 \
     python3-qt5
 
