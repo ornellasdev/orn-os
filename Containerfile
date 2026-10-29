@@ -1,11 +1,11 @@
-
 FROM ghcr.io/ublue-os/kinoite-nvidia:latest
 
 LABEL org.opencontainers.image.title="Orn OS"
 LABEL org.opencontainers.image.description="Gaming Linux baseado no Fedora Atomic e KDE Plasma."
 
-# 1. Copiar a identidade visual e personalizações
+# 1. Copiar a identidade visual, personalizações e liberar execução do app
 COPY system_files/ /
+RUN chmod +x /usr/bin/ornos-welcome
 
 # 2. Instalar utilitários e dependências
 RUN rpm-ostree install \
