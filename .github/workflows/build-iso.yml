@@ -24,7 +24,7 @@ jobs:
 
       - name: Gerar ISO do Orn OS Beta 1.0
         id: build
-        uses: JasonN3/build-container-installer@v1
+        uses: JasonN3/build-container-installer@main
         with:
           image_repo: ghcr.io/${{ github.repository_owner }}
           image_name: orn-os
