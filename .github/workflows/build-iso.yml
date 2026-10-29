@@ -1,0 +1,78 @@
+name: Build & Publish Orn OS ISO (Beta 1.0)
+
+on:
+  workflow_dispatch: # Permite gerar a ISO sob demanda com 1 clique no GitHub
+
+jobs:
+  build-iso:
+    name: Gerar ISO Instalável e Publicar Beta 1.0
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Liberar espaço em disco no servidor
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: Gerar ISO do Orn OS Beta 1.0
+        id: build
+        uses: JasonN3/build-container-installer@v1
+        with:
+          image_repo: ghcr.io/${{ github.repository_owner }}
+          image_name: orn-os
+          image_tag: latest
+          version: 44
+          variant: Kinoite
+          iso_name: Orn-OS-Beta-1.0-x86_64.iso
+
+      - name: Salvar ISO nos Artifacts do GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: Orn-OS-Beta-1.0-ISO
+          path: |
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}-CHECKSUM
+          retention-days: 30
+
+      - name: Preparar arquivos para o GitHub Releases (Respeitando limite de 2GB por parte)
+        run: |
+          cd "${{ steps.build.outputs.iso_path }}"
+          ISO_FILE="${{ steps.build.outputs.iso_name }}"
+          FILE_SIZE=$(stat -c%s "$ISO_FILE")
+          # Se a ISO passar de 1.9 GB, divide em partes para o GitHub Releases aceitar sem erro
+          if [ "$FILE_SIZE" -gt 2000000000 ]; then
+            split -b 1900M -d "$ISO_FILE" "${ISO_FILE}.part"
+            rm -f "$ISO_FILE"
+          fi
+
+      - name: Publicar Lançamento Oficial (Orn OS Beta 1.0)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0-beta
+          name: "Orn OS Beta 1.0 🚀 (Roxo Neon Edition)"
+          prerelease: true
+          body: |
+            ## 🎮 Bem-vindo ao Orn OS Beta 1.0!
+            Primeira versão pública de testes da distribuição Linux voltada para alta performance em jogos, baseada em **Fedora Atomic (Kinoite)** com **KDE Plasma 6**.
+
+            ### ✨ Destaques desta versão:
+            * **Visual Roxo Neon:** Wallpaper oficial integrado e aplicativo nativo **Orn OS Welcome** em PyQt6 no primeiro boot.
+            * **Pronto para Jogar:** Drivers NVIDIA pré-instalados, `gamemode`, `gamescope`, `mangohud` e `steam-devices` integrados.
+            * **Otimização de Memória:** Ajustes de kernel (`vm.max_map_count`) pré-configurados para compatibilidade máxima com Wine/Proton e anticheats.
+
+            ### 💿 Como baixar e instalar:
+            * **Download Direto (Arquivo Único):** Vá na aba **Actions** > clique na execução **Build & Publish Orn OS ISO** e baixe o pacote `Orn-OS-Beta-1.0-ISO` na seção **Artifacts**.
+            * **Rebase rápido (para quem já usa Fedora Atomic/Kinoite):**
+              ```bash
+              sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/ornellasdev/orn-os:latest
+              ```
+          files: |
+            ${{ steps.build.outputs.iso_path }}/*
